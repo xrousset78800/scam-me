@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  steamId       String    @unique
+  displayName   String
+  avatarUrl     String?
+  profileUrl    String?
+  tradeUrl      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  trades        Trade[]   @relation("initiator")
+  receivedTrades Trade[]  @relation("receiver")
+
+  @@map("users")
+}
+
+model Item {
+  id            String    @id @default(cuid())
+  marketHashName String   @unique
+  name          String
+  type          String    // Rifle, Pistol, Knife, Gloves, Sticker...
+  weapon        String?
+  exterior      Exterior?
+  rarity        Rarity
+  imageUrl      String
+  iconPath      String    // Steam CDN path
+  collection    String?
+  isStatTrak    Boolean   @default(false)
+  isSouvenir    Boolean   @default(false)
+
+  listings      Listing[]
+  prices        ItemPrice[]
+
+  @@map("items")
+}
+
+model ItemPrice {
+  id        String   @id @default(cuid())
+  itemId    String
+  source    String   // "steam", "buff163", "pricempire", "csfloat"
+  price     Float    // in USD
+  currency  String   @default("USD")
+  updatedAt DateTime @updatedAt
+
+  item      Item     @relation(fields: [itemId], references: [id])
+
+  @@unique([itemId, source])
+  @@map("item_prices")
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  itemId      String
+  assetId     String        // Steam asset ID
+  ownerId     String        // steamId of owner (bot or user)
+  float       Float?
+  paintSeed   Int?
+  stickers    Json?         // array of sticker objects
+  tradable    Boolean       @default(true)
+  status      ListingStatus @default(AVAILABLE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  item        Item          @relation(fields: [itemId], references: [id])
+
+  @@map("listings")
+}
+
+model Trade {
+  id            String      @id @default(cuid())
+  initiatorId   String
+  receiverId    String?     // null = bot trade
+  offeredItems  Json        // listing IDs offered
+  requestedItems Json       // listing IDs requested
+  priceDiff     Float       @default(0) // positive = user pays, negative = user receives
+  status        TradeStatus @default(PENDING)
+  steamTradeId  String?
+  message       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  initiator     User        @relation("initiator", fields: [initiatorId], references: [id])
+  receiver      User?       @relation("receiver", fields: [receiverId], references: [id])
+
+  @@map("trades")
+}
+
+enum Exterior {
+  FACTORY_NEW
+  MINIMAL_WEAR
+  FIELD_TESTED
+  WELL_WORN
+  BATTLE_SCARRED
+}
+
+enum Rarity {
+  CONSUMER_GRADE
+  INDUSTRIAL_GRADE
+  MIL_SPEC
+  RESTRICTED
+  CLASSIFIED
+  COVERT
+  CONTRABAND
+}
+
+enum ListingStatus {
+  AVAILABLE
+  RESERVED
+  IN_TRADE
+  SOLD
+}
+
+enum TradeStatus {
+  PENDING
+  SENT
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  EXPIRED
+}
