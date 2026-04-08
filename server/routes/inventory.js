@@ -18,7 +18,12 @@ router.get('/', async (req, res) => {
   try {
     const items = await fetchSteamInventory(steamId);
     const names = [...new Set(items.map(i => i.marketHashName))];
-    const prices = await fetchPrices(names);
+
+    // Prices optionnelles — ne pas planter si Pricempire/Steam indispo
+    let prices = {};
+    try { prices = await fetchPrices(names); } catch (e) {
+      console.warn('[inventory] fetchPrices failed (non-bloquant):', e.message);
+    }
 
     const enriched = items.map(item => ({
       ...item,
@@ -28,7 +33,7 @@ router.get('/', async (req, res) => {
     res.json({ items: enriched, total: enriched.length });
   } catch (err) {
     console.error('[inventory]', err.message);
-    res.status(500).json({ error: 'Impossible de récupérer l\'inventaire' });
+    res.status(500).json({ error: err.message });
   }
 });
 

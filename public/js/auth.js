@@ -51,7 +51,7 @@ function renderUserMenu(container, user) {
       ${user.avatarUrl ? `<img src="${user.avatarUrl}" alt="" class="header__avatar">` : ''}
       <span>${escapeHtml(user.displayName ?? '')}</span>
     </div>
-    <a href="/auth/logout" class="btn-logout">Déconnexion</a>
+    <a href="${API_BASE}/auth/logout" class="btn-logout">Déconnexion</a>
   `;
 }
 
