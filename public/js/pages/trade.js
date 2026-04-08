@@ -61,7 +61,7 @@ async function loadInventoryIfConnected() {
   if (!session.authenticated) {
     grid.innerHTML = `
       <p class="state-empty" style="grid-column:1/-1">
-        <a href="/auth/steam" style="color:var(--accent)">Connecte-toi</a> pour voir ton inventaire
+        <a href="${API_BASE}/auth/steam" style="color:var(--accent)">Connecte-toi</a> pour voir ton inventaire
       </p>`;
     return;
   }
