@@ -1,4 +1,4 @@
-name: Deploy to Render
+name: Deploy
 
 on:
   push:
@@ -6,12 +6,32 @@ on:
       - main
 
 jobs:
-  deploy:
-    name: Trigger Render Deploy
+  # Déploie uniquement le dossier public/ sur OVH (fichiers statiques)
+  ftp-deploy:
+    name: FTP Deploy (static → OVH)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Deploy via Render webhook
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy public/ to OVH
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./public/
+          server-dir: /www/scam-me/
+          exclude: |
+            **/.git*
+            **/.git/**
+
+  # Déclenche le redéploiement Express sur Render
+  render-deploy:
+    name: Render Deploy (Express)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render webhook
         run: |
           curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
             -o /dev/null -w "HTTP %{http_code}\n"

@@ -5,6 +5,12 @@ const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
 
+// Origines autorisées à faire des requêtes cross-origin vers l'API
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'https://xouindaplace.fr',
+];
+
 const authRouter = require('./routes/auth');
 const inventoryRouter = require('./routes/inventory');
 const itemsRouter = require('./routes/items');
@@ -31,6 +37,19 @@ if (process.env.HTPASSWD_USER && process.env.HTPASSWD_PASS) {
     return res.status(401).send('Accès non autorisé');
   });
 }
+
+// --- CORS ---
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
 
 // --- Body parsing ---
 app.use(express.json());

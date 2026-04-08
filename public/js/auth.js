@@ -36,7 +36,7 @@
 
 function renderLoginButton(container) {
   container.innerHTML = `
-    <a href="/auth/steam" class="btn-steam">
+    <a href="${API_BASE}/auth/steam" class="btn-steam">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.38L12.1 12h-.1a3.5 3.5 0 0 1-3.5-3.5 3.5 3.5 0 0 1 3.5-3.5 3.5 3.5 0 0 1 3.5 3.5h0l-11.4 3.94C4.7 14.45 5.9 16 7.5 16a2.5 2.5 0 0 0 2.36-1.68l2.52.92A5 5 0 0 1 7.5 18.5a5 5 0 0 1-4.98-4.62L0 12.54V12C0 5.37 5.37 0 12 0zm0 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/>
       </svg>
