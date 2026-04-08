@@ -58,13 +58,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // --- Sessions ---
+const isProd = process.env.NODE_ENV === 'production';
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+    secure: isProd,           // HTTPS uniquement en prod
+    sameSite: isProd ? 'none' : 'lax', // 'none' requis pour cross-domain en prod
+    maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 jours
   },
 }));
 
@@ -77,6 +79,7 @@ if (process.env.NODE_ENV !== 'production') {
   app.get('/debug/env', (req, res) => {
     res.json({
       APP_URL: process.env.APP_URL ?? '❌ manquant',
+      FRONTEND_URL: process.env.FRONTEND_URL ?? '❌ manquant',
       STEAM_API_KEY: process.env.STEAM_API_KEY ? '✅ défini' : '❌ manquant',
       SESSION_SECRET: process.env.SESSION_SECRET ? '✅ défini' : '❌ manquant',
       DATABASE_URL: process.env.DATABASE_URL ? '✅ défini' : '❌ manquant',
