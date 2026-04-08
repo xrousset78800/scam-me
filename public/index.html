@@ -7,54 +7,117 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/pages/home.css">
+  <link rel="stylesheet" href="css/components/item-card.css">
+  <link rel="stylesheet" href="css/components/filter-bar.css">
+  <link rel="stylesheet" href="css/components/trade-panel.css">
 </head>
 <body>
 
   <header class="header">
-    <a href="index.html" class="header__logo">scam.me</a>
+    <a href="#" class="header__logo" data-page="home">scam.me</a>
     <nav class="header__nav">
-      <a href="trade.html">Trade</a>
+      <a href="#trade" data-page="trade">Trade</a>
     </nav>
     <div class="header__auth" id="header-auth"></div>
   </header>
 
-  <main>
-    <section class="hero">
-      <h1 class="hero__title">
-        Échange tes skins CS2<br>
-        <span>simplement</span>
-      </h1>
-      <p class="hero__subtitle">
-        Connecte ton compte Steam et échange tes skins directement avec d'autres joueurs, au meilleur prix.
-      </p>
-      <div class="hero__actions">
-        <a href="" id="btn-steam-login" class="btn-primary">Se connecter avec Steam</a>
-        <a href="trade.html" class="btn-secondary">Parcourir le marché</a>
-      </div>
-    </section>
+  <div id="app">
 
-    <section class="features">
-      <div class="feature-card">
-        <div class="feature-card__icon">⚡</div>
-        <h3 class="feature-card__title">Échanges instantanés</h3>
-        <p class="feature-card__text">Propose et accepte des trades directement via Steam. Pas d'intermédiaire.</p>
+    <!-- PAGE : Accueil -->
+    <div class="page" id="page-home">
+      <section class="hero">
+        <h1 class="hero__title">
+          Échange tes skins CS2<br>
+          <span>simplement</span>
+        </h1>
+        <p class="hero__subtitle">
+          Connecte ton compte Steam et échange tes skins directement avec d'autres joueurs, au meilleur prix.
+        </p>
+        <div class="hero__actions">
+          <a id="btn-steam-login" class="btn-primary" style="cursor:pointer">Se connecter avec Steam</a>
+          <a href="#trade" data-page="trade" class="btn-secondary">Parcourir le marché</a>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="feature-card">
+          <div class="feature-card__icon">⚡</div>
+          <h3 class="feature-card__title">Échanges instantanés</h3>
+          <p class="feature-card__text">Propose et accepte des trades directement via Steam. Pas d'intermédiaire.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">💰</div>
+          <h3 class="feature-card__title">Prix en temps réel</h3>
+          <p class="feature-card__text">Valeurs basées sur Buff163 et le Steam Market pour des échanges équitables.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🔒</div>
+          <h3 class="feature-card__title">Connexion Steam sécurisée</h3>
+          <p class="feature-card__text">Authentification via Steam OpenID. Aucun mot de passe stocké.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- PAGE : Trade -->
+    <div class="page" id="page-trade">
+      <div class="container">
+        <div class="trade-layout">
+
+          <div class="trade-columns">
+            <!-- Marché -->
+            <div>
+              <p class="trade-section__title">Marché</p>
+              <div class="filter-bar">
+                <div class="filter-bar__search">
+                  <svg class="filter-bar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <input id="market-search" type="text" placeholder="Rechercher…">
+                </div>
+                <select id="market-sort" class="filter-bar__select">
+                  <option value="price_desc">Prix décroissant</option>
+                  <option value="price_asc">Prix croissant</option>
+                  <option value="name_asc">Nom A→Z</option>
+                </select>
+              </div>
+              <div id="market-grid" class="items-grid"></div>
+            </div>
+
+            <!-- Inventaire -->
+            <div>
+              <p class="trade-section__title">Mon inventaire</p>
+              <div id="inventory-grid" class="items-grid"></div>
+            </div>
+          </div>
+
+          <!-- Panneau trade -->
+          <aside>
+            <div class="trade-panel">
+              <p class="trade-panel__title">Proposition de trade</p>
+              <div>
+                <p class="trade-panel__section-label">Tu offres</p>
+                <div id="panel-offered" class="trade-panel__items empty"></div>
+              </div>
+              <div>
+                <p class="trade-panel__section-label">Tu demandes</p>
+                <div id="panel-requested" class="trade-panel__items empty"></div>
+              </div>
+              <div id="panel-diff" class="trade-panel__diff neutral">—</div>
+              <button id="btn-trade" class="trade-panel__submit" disabled>Proposer le trade</button>
+            </div>
+          </aside>
+
+        </div>
       </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">💰</div>
-        <h3 class="feature-card__title">Prix en temps réel</h3>
-        <p class="feature-card__text">Valeurs basées sur Buff163 et le Steam Market pour des échanges équitables.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-card__icon">🔒</div>
-        <h3 class="feature-card__title">Connexion Steam sécurisée</h3>
-        <p class="feature-card__text">Authentification via Steam OpenID. Aucun mot de passe stocké.</p>
-      </div>
-    </section>
-  </main>
+    </div>
+
+  </div><!-- #app -->
 
   <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/pages/trade.js"></script>
 </body>
 </html>

@@ -114,6 +114,35 @@
   color: var(--text);
 }
 
+/* --- Pages (SPA) --- */
+.page { display: none; }
+.page.is-active { display: block; }
+
+/* --- Layout trade --- */
+.trade-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  align-items: start;
+}
+.trade-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.trade-section__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}
+@media (max-width: 900px) {
+  .trade-layout  { grid-template-columns: 1fr; }
+  .trade-columns { grid-template-columns: 1fr; }
+}
+
 /* --- Grid générique d'items --- */
 .items-grid {
   display: grid;
