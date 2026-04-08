@@ -1,4 +1,4 @@
-name: Deploy to OVH via FTP
+name: Deploy to Render
 
 on:
   push:
@@ -6,27 +6,12 @@ on:
       - main
 
 jobs:
-  ftp-deploy:
-    name: FTP Deploy
+  deploy:
+    name: Trigger Render Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Deploy to OVH
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-
-          local-dir: ./
-          server-dir: /www/scam-me/
-
-          exclude: |
-            **/.git*
-            **/.git/**
-            **/.github/**
-            **/node_modules/**
-            **/.env
+      - name: Deploy via Render webhook
+        run: |
+          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -o /dev/null -w "HTTP %{http_code}\n"
