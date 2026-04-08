@@ -50,6 +50,12 @@ router.get('/', async (req, res) => {
     ? { item: { name: 'asc' } }
     : { item: { prices: { _min: { price: 'desc' } } } };
 
+  // Si pas de DB configurée, retourne vide sans planter
+  const dbUrl = process.env.DATABASE_URL ?? '';
+  if (!dbUrl || dbUrl.includes('user:password@localhost')) {
+    return res.json({ listings: [], total: 0, page: pageNum, limit: limitNum });
+  }
+
   try {
     const [listings, total] = await Promise.all([
       prisma.listing.findMany({
@@ -65,7 +71,7 @@ router.get('/', async (req, res) => {
     res.json({ listings, total, page: pageNum, limit: limitNum });
   } catch (err) {
     console.error('[items]', err.message);
-    res.status(500).json({ error: 'Erreur base de données' });
+    res.json({ listings: [], total: 0, page: pageNum, limit: limitNum });
   }
 });
 
