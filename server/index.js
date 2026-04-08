@@ -21,6 +21,10 @@ const tradeRouter = require('./routes/trade');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Nécessaire pour que Express sache qu'il est derrière le proxy HTTPS de Render
+// Sans ça, le cookie 'secure' est refusé et la session est perdue après redirect
+app.set('trust proxy', 1);
+
 // --- Middleware de protection HTTP Basic Auth (optionnel, dev uniquement) ---
 if (process.env.HTPASSWD_USER && process.env.HTPASSWD_PASS) {
   app.use((req, res, next) => {
@@ -35,7 +39,7 @@ if (process.env.HTPASSWD_USER && process.env.HTPASSWD_PASS) {
         }
       }
     }
-    res.setHeader('WWW-Authenticate', 'Basic realm="scam.me — dev"');
+    res.setHeader('WWW-Authenticate', 'Basic realm="scam.me - dev"');
     return res.status(401).send('Accès non autorisé');
   });
 }
