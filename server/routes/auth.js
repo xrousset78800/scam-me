@@ -42,11 +42,11 @@ passport.deserializeUser((user, done) => done(null, user));
 // Redirige vers Steam pour la connexion
 router.get('/steam', passport.authenticate('steam'));
 
-// Callback après connexion Steam
+// Callback après connexion Steam — redirige vers le frontend OVH (ou localhost en dev)
 router.get(
   '/steam/callback',
-  passport.authenticate('steam', { failureRedirect: '/' }),
-  (req, res) => res.redirect('/inventory.html')
+  passport.authenticate('steam', { failureRedirect: process.env.FRONTEND_URL ?? '/' }),
+  (req, res) => res.redirect(process.env.FRONTEND_URL ?? '/')
 );
 
 // Déconnexion
