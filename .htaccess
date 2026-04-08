@@ -1,2 +1,4 @@
-RewriteEngine On
-RewriteRule ^(.*)$ https://scam-me-g5hs.onrender.com/$1 [R=301,L]
+AuthType Basic
+AuthName "Scam.me - Accès restreint"
+AuthUserFile /home/xouindap/www/scam-me/.htpasswd
+Require valid-user
