@@ -1,0 +1,122 @@
+/* ============================================================
+   COMPOSANT — Item Card
+   ============================================================ */
+
+.item-card {
+  position: relative;
+  aspect-ratio: 1;
+  background-color: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.item-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Bordure de rareté en haut */
+.item-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+.item-card[data-rarity="consumer"]   { --rarity-color: var(--rarity-consumer); }
+.item-card[data-rarity="industrial"] { --rarity-color: var(--rarity-industrial); }
+.item-card[data-rarity="milspec"]    { --rarity-color: var(--rarity-milspec); }
+.item-card[data-rarity="restricted"] { --rarity-color: var(--rarity-restricted); }
+.item-card[data-rarity="classified"] { --rarity-color: var(--rarity-classified); }
+.item-card[data-rarity="covert"]     { --rarity-color: var(--rarity-covert); }
+.item-card[data-rarity="contraband"] { --rarity-color: var(--rarity-contraband); }
+
+.item-card::before {
+  background-color: var(--rarity-color, var(--rarity-consumer));
+}
+
+/* Image */
+.item-card__img-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.item-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Infos bas de carte */
+.item-card__footer {
+  padding: 4px 6px;
+  background-color: var(--surface-2);
+}
+
+.item-card__name {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-card__price {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Badge StatTrak */
+.item-card__stattrak {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 0.5rem;
+  font-weight: 700;
+  background-color: rgba(207, 106, 50, 0.85);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Barre de float */
+.item-card__float-bar {
+  height: 2px;
+  background: linear-gradient(to right,
+    #4caf50 0%,
+    #8bc34a 25%,
+    #ffeb3b 50%,
+    #ff9800 75%,
+    #f44336 100%
+  );
+  position: relative;
+  margin: 0 6px 4px;
+}
+
+.item-card__float-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 6px;
+  background-color: #fff;
+  border-radius: 1px;
+}

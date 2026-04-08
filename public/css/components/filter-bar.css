@@ -1,0 +1,103 @@
+/* ============================================================
+   COMPOSANT — Filter Bar
+   ============================================================ */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 0;
+}
+
+/* Champ de recherche */
+.filter-bar__search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 280px;
+  position: relative;
+}
+
+.filter-bar__search input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.filter-bar__search input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.filter-bar__search input::placeholder {
+  color: var(--muted);
+}
+
+.filter-bar__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+}
+
+/* Pills de rareté */
+.filter-bar__rarities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.filter-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filter-pill:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.filter-pill.active {
+  color: #fff;
+  border-color: transparent;
+}
+
+.filter-pill[data-rarity="consumer"].active    { background-color: var(--rarity-consumer); color: #000; }
+.filter-pill[data-rarity="industrial"].active  { background-color: var(--rarity-industrial); }
+.filter-pill[data-rarity="milspec"].active     { background-color: var(--rarity-milspec); }
+.filter-pill[data-rarity="restricted"].active  { background-color: var(--rarity-restricted); }
+.filter-pill[data-rarity="classified"].active  { background-color: var(--rarity-classified); }
+.filter-pill[data-rarity="covert"].active      { background-color: var(--rarity-covert); }
+.filter-pill[data-rarity="contraband"].active  { background-color: var(--rarity-contraband); }
+
+/* Selects */
+.filter-bar__select {
+  padding: 7px 10px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.8rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.filter-bar__select:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+}

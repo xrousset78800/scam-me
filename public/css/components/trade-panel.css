@@ -1,0 +1,107 @@
+/* ============================================================
+   COMPOSANT — Trade Panel
+   ============================================================ */
+
+.trade-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.trade-panel__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.trade-panel__section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* Liste des items sélectionnés */
+.trade-panel__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 48px;
+  padding: 8px;
+  background-color: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+}
+
+.trade-panel__items.empty::after {
+  content: 'Aucun item sélectionné';
+  color: var(--muted);
+  font-size: 0.75rem;
+  align-self: center;
+  margin: auto;
+}
+
+.trade-panel__thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  object-fit: contain;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+/* Différence de prix */
+.trade-panel__diff {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.trade-panel__diff.positive {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.trade-panel__diff.negative {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.trade-panel__diff.neutral {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* Bouton submit */
+.trade-panel__submit {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--accent);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+}
+
+.trade-panel__submit:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.trade-panel__submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
