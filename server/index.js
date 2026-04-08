@@ -1,4 +1,6 @@
+// Charge .env.local en dev, ignoré si absent (prod : variables Render)
 require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env' });
 
 const express = require('express');
 const session = require('express-session');
@@ -69,6 +71,19 @@ app.use(session({
 // --- Passport (auth Steam) ---
 app.use(passport.initialize());
 app.use(passport.session());
+
+// --- Route debug (dev uniquement) ---
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/debug/env', (req, res) => {
+    res.json({
+      APP_URL: process.env.APP_URL ?? '❌ manquant',
+      STEAM_API_KEY: process.env.STEAM_API_KEY ? '✅ défini' : '❌ manquant',
+      SESSION_SECRET: process.env.SESSION_SECRET ? '✅ défini' : '❌ manquant',
+      DATABASE_URL: process.env.DATABASE_URL ? '✅ défini' : '❌ manquant',
+      NODE_ENV: process.env.NODE_ENV ?? 'undefined',
+    });
+  });
+}
 
 // --- Route session (pour que le frontend sache si l'user est connecté) ---
 app.get('/api/session', (req, res) => {
