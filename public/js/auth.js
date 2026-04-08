@@ -17,12 +17,14 @@
 
   if (session.authenticated && session.user) {
     renderUserMenu(authContainer, session.user);
-    // Expose l'utilisateur globalement pour les autres scripts
     window.__user = session.user;
   } else {
     renderLoginButton(authContainer);
     window.__user = null;
   }
+
+  // Notifie les autres modules que la session est prête
+  window.dispatchEvent(new CustomEvent('auth:ready', { detail: window.__user }));
 
   // Marque le lien de nav actif
   const currentPath = window.location.pathname;
