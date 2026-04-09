@@ -130,11 +130,16 @@ async function fetchViaCommunity(steamId) {
     const weaponTag    = tags.find(t => t.category === 'Weapon');
     const rarity = rarityTag?.localized_tag_name ?? 'Consumer Grade';
 
-    // Lien d'inspection pour récupérer le float via floatcheck ultérieurement
-    const inspectAction = (desc.actions ?? []).find(a => a.name === 'Inspecter en jeu...');
+    // Lien d'inspection pour floatcheck
+    // %owner_steamid% → steamId passé à la fonction (pas dans la réponse asset)
+    // %assetid% → asset.assetid (déjà dans la réponse)
+    // L'action peut être en anglais ou en français selon l'API
+    const inspectAction = (desc.actions ?? []).find(a =>
+      a.link?.includes('csgo_econ_action_preview')
+    );
     const inspectLink = inspectAction
       ? inspectAction.link
-          .replace('%owner_steamid%', asset.owner_steamid ?? '')
+          .replace('%owner_steamid%', steamId)
           .replace('%assetid%', asset.assetid)
       : null;
 
