@@ -18,6 +18,12 @@ const API = {
     return res.json();
   },
 
+  async getPlatformInventory() {
+    const res = await fetch(`${API_BASE}/api/platform-inventory`, { credentials: 'include' });
+    if (!res.ok) throw new Error((await res.json()).error ?? 'Erreur inventaire plateforme');
+    return res.json();
+  },
+
   async getItems(params = {}) {
     const qs = new URLSearchParams(
       Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined && v !== ''))

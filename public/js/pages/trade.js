@@ -30,38 +30,50 @@ async function loadMarket() {
   showSkeletons(grid, 12);
 
   try {
-    let listings;
+    let items;
     if (MOCK.enabled) {
-      listings = [...MOCK.marketListings];
+      const listings = [...MOCK.marketListings];
       if (search) {
         const q = search.toLowerCase();
-        listings = listings.filter(l => l.item.name.toLowerCase().includes(q));
+        listings.filter(l => l.item.name.toLowerCase().includes(q));
       }
       if (sort === 'price_asc')  listings.sort((a, b) => (a.item.prices?.[0]?.price ?? 0) - (b.item.prices?.[0]?.price ?? 0));
       if (sort === 'price_desc') listings.sort((a, b) => (b.item.prices?.[0]?.price ?? 0) - (a.item.prices?.[0]?.price ?? 0));
       if (sort === 'name_asc')   listings.sort((a, b) => a.item.name.localeCompare(b.item.name));
       if (sort === 'float_asc')  listings.sort((a, b) => (a.item.float ?? 1) - (b.item.float ?? 1));
+      items = listings.map(l => ({
+        ...l.item,
+        assetId: l.id,
+        price: l.item.prices?.[0]?.price ?? null,
+        rarityKey: rarityToKey(l.item.rarity ?? 'Consumer Grade'),
+        iconUrl: l.item.imageUrl ?? '',
+      }));
     } else {
-      const data = await API.getItems({ q: search, sort, limit: 60 });
-      listings = data.listings ?? [];
+      const data = await API.getPlatformInventory();
+      let raw = data.items ?? [];
+
+      // Filtrage et tri client-side (l'API renvoie tout, le tri se fait ici)
+      if (search) {
+        const q = search.toLowerCase();
+        raw = raw.filter(i => i.name.toLowerCase().includes(q));
+      }
+      if (sort === 'price_asc')  raw.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+      if (sort === 'price_desc') raw.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+      if (sort === 'name_asc')   raw.sort((a, b) => a.name.localeCompare(b.name));
+      if (sort === 'float_asc')  raw.sort((a, b) => (a.float ?? 1) - (b.float ?? 1));
+
+      items = raw;
     }
 
     grid.innerHTML = '';
-    if (listings.length === 0) {
+    if (items.length === 0) {
       grid.innerHTML = '<p class="state-empty">Aucun item disponible.</p>';
       return;
     }
 
-    listings.forEach(listing => {
-      const item = {
-        ...listing.item,
-        assetId: listing.id,
-        price: listing.item.prices?.[0]?.price ?? null,
-        rarityKey: rarityToKey(listing.item.rarity ?? 'Consumer Grade'),
-        iconUrl: listing.item.imageUrl ?? '',
-      };
+    items.forEach(item => {
       const card = createItemCard(item, onMarketItemClick);
-      if (requestedItems.has(listing.id)) card.classList.add('selected');
+      if (requestedItems.has(item.assetId)) card.classList.add('selected');
       grid.appendChild(card);
     });
   } catch (err) {

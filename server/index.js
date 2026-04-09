@@ -15,6 +15,7 @@ const ALLOWED_ORIGINS = [
 
 const authRouter = require('./routes/auth');
 const inventoryRouter = require('./routes/inventory');
+const platformInventoryRouter = require('./routes/platform-inventory');
 const itemsRouter = require('./routes/items');
 const tradeRouter = require('./routes/trade');
 
@@ -85,6 +86,7 @@ if (process.env.NODE_ENV !== 'production') {
       APP_URL: process.env.APP_URL ?? '❌ manquant',
       FRONTEND_URL: process.env.FRONTEND_URL ?? '❌ manquant',
       STEAM_API_KEY: process.env.STEAM_API_KEY ? '✅ défini' : '❌ manquant',
+      PLATFORM_STEAM_IDS: process.env.PLATFORM_STEAM_IDS ?? process.env.PLATFORM_STEAM_ID ?? '❌ manquant',
       SESSION_SECRET: process.env.SESSION_SECRET ? '✅ défini' : '❌ manquant',
       DATABASE_URL: process.env.DATABASE_URL ? '✅ défini' : '❌ manquant',
       NODE_ENV: process.env.NODE_ENV ?? 'undefined',
@@ -104,6 +106,7 @@ app.get('/api/session', (req, res) => {
 // --- Routes API ---
 app.use('/auth', authRouter);
 app.use('/api/inventory', inventoryRouter);
+app.use('/api/platform-inventory', platformInventoryRouter);
 app.use('/api/items', itemsRouter);
 app.use('/api/trade', tradeRouter);
 
