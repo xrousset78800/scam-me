@@ -62,13 +62,30 @@ async function fetchViaOfficialAPI(steamId, apiKey) {
 
 async function fetchViaCommunity(steamId) {
   const url = `https://steamcommunity.com/inventory/${steamId}/${APP_ID}/2?l=english&count=5000`;
-  const { data } = await axios.get(url, {
+  const response = await axios.get(url, {
     timeout: 15_000,
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; scam-me-bot/1.0)' },
+    validateStatus: () => true, // On gère nous-mêmes les codes d'erreur pour diagnostic
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Referer': 'https://steamcommunity.com/',
+    },
   });
 
+  const { status, data } = response;
+  console.log(`[steam] community endpoint status=${status} for ${steamId}`);
+
+  if (status === 429) throw new Error('429 rate limited by Steam');
+  if (status === 403) throw new Error('403 inventaire privé ou profil privé');
+  if (status === 400) {
+    const reason = typeof data === 'object' ? JSON.stringify(data) : String(data).slice(0, 200);
+    throw new Error(`400 Steam refusé — vérifier que l'inventaire CS2 est Public. Réponse: ${reason}`);
+  }
+  if (status !== 200) throw new Error(`Steam community HTTP ${status}`);
+
   if (!data || data.success !== 1) {
-    throw new Error('Inventaire Steam inaccessible (inventaire privé ou bloqué par Steam)');
+    throw new Error(`Inventaire inaccessible (success=${data?.success}, error="${data?.Error ?? 'inconnu'}")`);
   }
 
   const descMap = new Map();
