@@ -7,17 +7,21 @@ const requestedItems = new Map();
 
 // Lance le marché immédiatement, l'inventaire attend que la session soit prête
 (async function initTrade() {
+  // Enregistrement SYNCHRONE avant tout await — évite la race condition avec auth:ready
+  if (typeof window.__user !== 'undefined') {
+    // auth:ready a déjà été dispatché avant que ce script s'exécute
+    loadInventory(window.__user);
+  } else {
+    window.addEventListener('auth:ready', (e) => loadInventory(e.detail), { once: true });
+  }
+
   await loadMarket();
   updateTradePanel();
 
   document.getElementById('market-search')?.addEventListener('input', loadMarket);
   document.getElementById('market-sort')?.addEventListener('change', loadMarket);
   document.getElementById('btn-trade')?.addEventListener('click', submitTrade);
-
-  // Attend auth:ready pour charger l'inventaire
-  window.addEventListener('auth:ready', (e) => {
-    loadInventory(e.detail);
-  }, { once: true });
+  document.getElementById('btn-refresh-inventory')?.addEventListener('click', () => loadInventory(window.__user));
 })();
 
 async function loadMarket() {

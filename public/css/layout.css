@@ -181,13 +181,45 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.trade-section__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .trade-section__title {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
+}
+
+.btn-refresh {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: 0.9rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, transform 0.2s;
+  line-height: 1;
+}
+
+.btn-refresh:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.btn-refresh:active {
+  transform: rotate(180deg);
 }
 @media (max-width: 900px) {
   .trade-layout  { grid-template-columns: 1fr; }
