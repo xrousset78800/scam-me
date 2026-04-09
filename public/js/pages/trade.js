@@ -30,8 +30,13 @@ async function loadMarket() {
   showSkeletons(grid, 12);
 
   try {
-    const data = await API.getItems({ q: search, sort, limit: 60 });
-    const listings = data.listings ?? [];
+    let listings;
+    if (MOCK.enabled) {
+      listings = MOCK.marketListings;
+    } else {
+      const data = await API.getItems({ q: search, sort, limit: 60 });
+      listings = data.listings ?? [];
+    }
 
     grid.innerHTML = '';
     if (listings.length === 0) {
@@ -60,7 +65,7 @@ async function loadInventory(user) {
   const grid = document.getElementById('inventory-grid');
   if (!grid) return;
 
-  if (!user) {
+  if (!user && !MOCK.enabled) {
     grid.innerHTML = `
       <p class="state-empty" style="grid-column:1/-1">
         <a href="${API_BASE}/auth/steam" style="color:var(--accent)">Connecte-toi</a> pour voir ton inventaire
@@ -71,8 +76,13 @@ async function loadInventory(user) {
   showSkeletons(grid, 12);
 
   try {
-    const data = await API.getInventory();
-    const items = data.items ?? [];
+    let items;
+    if (MOCK.enabled) {
+      items = MOCK.userInventory;
+    } else {
+      const data = await API.getInventory();
+      items = data.items ?? [];
+    }
 
     grid.innerHTML = '';
     if (items.length === 0) {
