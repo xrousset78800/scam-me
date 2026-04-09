@@ -61,40 +61,65 @@ async function fetchViaOfficialAPI(steamId, apiKey) {
 }
 
 async function fetchViaCommunity(steamId) {
-  const url = `https://steamcommunity.com/inventory/${steamId}/${APP_ID}/2?l=english&count=5000`;
-  const response = await axios.get(url, {
-    timeout: 15_000,
-    validateStatus: () => true, // On gère nous-mêmes les codes d'erreur pour diagnostic
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Referer': 'https://steamcommunity.com/',
-    },
-  });
-
-  const { status, data } = response;
-  console.log(`[steam] community endpoint status=${status} for ${steamId}`);
-
-  if (status === 429) throw new Error('429 rate limited by Steam');
-  if (status === 403) throw new Error('403 inventaire privé ou profil privé');
-  if (status === 400) {
-    const reason = typeof data === 'object' ? JSON.stringify(data) : String(data).slice(0, 200);
-    throw new Error(`400 Steam refusé — vérifier que l'inventaire CS2 est Public. Réponse: ${reason}`);
-  }
-  if (status !== 200) throw new Error(`Steam community HTTP ${status}`);
-
-  if (!data || data.success !== 1) {
-    throw new Error(`Inventaire inaccessible (success=${data?.success}, error="${data?.Error ?? 'inconnu'}")`);
-  }
-
+  const PAGE_SIZE = 75; // Taille de page Steam (dépasse = null retourné silencieusement)
+  const allAssets = [];
   const descMap = new Map();
-  for (const desc of data.descriptions ?? []) {
-    descMap.set(`${desc.classid}_${desc.instanceid}`, desc);
+  let lastAssetId = null;
+  let page = 0;
+
+  while (true) {
+    page++;
+    const params = new URLSearchParams({ l: 'english', count: PAGE_SIZE });
+    if (lastAssetId) params.set('start_assetid', lastAssetId);
+    const url = `https://steamcommunity.com/inventory/${steamId}/${APP_ID}/2?${params}`;
+
+    const response = await axios.get(url, {
+      timeout: 15_000,
+      validateStatus: () => true,
+      responseType: 'text',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+    });
+
+    const { status } = response;
+    const rawText = String(response.data ?? '').trim();
+    console.log(`[steam] community page=${page} status=${status} preview="${rawText.slice(0, 80)}"`);
+
+    if (status === 429) throw new Error('429 rate limited by Steam');
+    if (status === 403) throw new Error('403 inventaire privé ou profil privé');
+    if (status !== 200) throw new Error(`Steam HTTP ${status} — ${rawText.slice(0, 200) || '(vide)'}`);
+
+    let data;
+    try { data = JSON.parse(rawText); }
+    catch { throw new Error(`Steam a renvoyé du non-JSON: ${rawText.slice(0, 200)}`); }
+
+    if (data === null) {
+      console.warn(`[steam] page ${page} returned null for ${steamId} — inventaire vide ou non initialisé`);
+      break;
+    }
+    if (!data || data.success !== 1) {
+      throw new Error(`Inventaire inaccessible (success=${data?.success}, error="${data?.Error ?? 'inconnu'}")`);
+    }
+
+    for (const desc of data.descriptions ?? []) {
+      descMap.set(`${desc.classid}_${desc.instanceid}`, desc);
+    }
+    allAssets.push(...(data.assets ?? []));
+
+    if (!data.more_items || !data.last_assetid) break;
+    lastAssetId = data.last_assetid;
+
+    // Petite pause pour ne pas hammerer Steam entre les pages
+    await new Promise(r => setTimeout(r, 300));
   }
+
+  console.log(`[steam] fetched ${allAssets.length} assets (${page} page(s)) for ${steamId}`);
 
   const items = [];
-  for (const asset of data.assets ?? []) {
+  for (const asset of allAssets) {
     const desc = descMap.get(`${asset.classid}_${asset.instanceid}`);
     if (!desc) continue;
 
