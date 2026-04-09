@@ -18,6 +18,13 @@ const API = {
     return res.json();
   },
 
+  async getFloat(inspectLink, assetId) {
+    const params = new URLSearchParams({ link: inspectLink, assetId });
+    const res = await fetch(`${API_BASE}/api/float?${params}`, { credentials: 'include' });
+    if (!res.ok) throw new Error((await res.json()).error ?? 'Erreur float');
+    return res.json(); // { assetId, float }
+  },
+
   async getPlatformInventory() {
     const res = await fetch(`${API_BASE}/api/platform-inventory`, { credentials: 'include' });
     if (!res.ok) throw new Error((await res.json()).error ?? 'Erreur inventaire plateforme');

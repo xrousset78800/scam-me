@@ -16,6 +16,7 @@ const ALLOWED_ORIGINS = [
 const authRouter = require('./routes/auth');
 const inventoryRouter = require('./routes/inventory');
 const platformInventoryRouter = require('./routes/platform-inventory');
+const floatRouter = require('./routes/float');
 const itemsRouter = require('./routes/items');
 const tradeRouter = require('./routes/trade');
 
@@ -107,6 +108,7 @@ app.get('/api/session', (req, res) => {
 app.use('/auth', authRouter);
 app.use('/api/inventory', inventoryRouter);
 app.use('/api/platform-inventory', platformInventoryRouter);
+app.use('/api/float', floatRouter);
 app.use('/api/items', itemsRouter);
 app.use('/api/trade', tradeRouter);
 

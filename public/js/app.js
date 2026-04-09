@@ -155,7 +155,67 @@ function createItemCard(item, onClick) {
     card.addEventListener('click', () => onClick(item, card));
   }
 
+  // Float on-demand : fetch au premier hover si l'item a un inspectLink mais pas encore de float
+  if (!hasFloat && item.inspectLink) {
+    card.dataset.inspectLink = item.inspectLink;
+    card.dataset.assetId = item.assetId;
+    card.addEventListener('mouseenter', onCardHoverFloat, { once: true });
+  }
+
   return card;
+}
+
+/** Fetch la float au hover, met à jour la carte en place, ne bombarde pas l'API */
+async function onCardHoverFloat(e) {
+  const card = e.currentTarget;
+  const { inspectLink, assetId } = card.dataset;
+  if (!inspectLink || !assetId) return;
+
+  try {
+    const { float } = await API.getFloat(inspectLink, assetId);
+    if (float == null) return;
+
+    // Mise à jour de la valeur texte
+    const floatValEl = card.querySelector('.item-card__float-val');
+    if (floatValEl) {
+      floatValEl.textContent = float.toFixed(4);
+    } else {
+      // La ligne meta n'existe pas encore (item sans exterior non plus) — on l'injecte
+      const meta = card.querySelector('.item-card__meta') ?? (() => {
+        const m = document.createElement('div');
+        m.className = 'item-card__meta';
+        card.querySelector('.item-card__footer').insertBefore(
+          m,
+          card.querySelector('.item-card__float-bar') ?? card.querySelector('.item-card__price-row')
+        );
+        return m;
+      })();
+      const fv = document.createElement('span');
+      fv.className = 'item-card__float-val';
+      fv.textContent = float.toFixed(4);
+      meta.appendChild(fv);
+    }
+
+    // Mise à jour de la barre (ou création si absente)
+    let bar = card.querySelector('.item-card__float-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'item-card__float-bar';
+      const marker = document.createElement('div');
+      marker.className = 'item-card__float-marker';
+      bar.appendChild(marker);
+      const priceRow = card.querySelector('.item-card__price-row');
+      card.querySelector('.item-card__footer').insertBefore(bar, priceRow);
+    }
+    const marker = bar.querySelector('.item-card__float-marker');
+    if (marker) marker.style.left = `${Math.min(100, Math.max(0, float * 100))}%`;
+
+  } catch (err) {
+    if (err.message.includes('429')) {
+      // Rate limited — on remet le listener pour réessayer au prochain hover
+      card.addEventListener('mouseenter', onCardHoverFloat, { once: true });
+    }
+  }
 }
 
 /**
