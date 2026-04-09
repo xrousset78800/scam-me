@@ -111,6 +111,15 @@ function createItemCard(item, onClick) {
     footer.appendChild(meta);
   }
 
+  // Collection
+  if (item.collection) {
+    const col = document.createElement('div');
+    col.className = 'item-card__collection';
+    col.textContent = item.collection;
+    col.title = item.collection;
+    footer.appendChild(col);
+  }
+
   // Barre de float
   if (hasFloat) {
     const bar = document.createElement('div');

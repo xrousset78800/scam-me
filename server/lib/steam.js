@@ -124,9 +124,19 @@ async function fetchViaCommunity(steamId) {
     if (!desc) continue;
 
     const tags = desc.tags ?? [];
-    const rarityTag = tags.find(t => t.category === 'Rarity');
-    const exteriorTag = tags.find(t => t.category === 'Exterior');
+    const rarityTag    = tags.find(t => t.category === 'Rarity');
+    const exteriorTag  = tags.find(t => t.category === 'Exterior');
+    const collectionTag = tags.find(t => t.category === 'ItemSet');
+    const weaponTag    = tags.find(t => t.category === 'Weapon');
     const rarity = rarityTag?.localized_tag_name ?? 'Consumer Grade';
+
+    // Lien d'inspection pour récupérer le float via floatcheck ultérieurement
+    const inspectAction = (desc.actions ?? []).find(a => a.name === 'Inspecter en jeu...');
+    const inspectLink = inspectAction
+      ? inspectAction.link
+          .replace('%owner_steamid%', asset.owner_steamid ?? '')
+          .replace('%assetid%', asset.assetid)
+      : null;
 
     items.push({
       assetId: asset.assetid,
@@ -134,8 +144,10 @@ async function fetchViaCommunity(steamId) {
       instanceId: asset.instanceid,
       marketHashName: desc.market_hash_name,
       name: desc.name,
+      weaponName: weaponTag?.localized_tag_name ?? null,
       type: desc.type,
-      exterior: exteriorTag?.localized_tag_name,
+      exterior: exteriorTag?.localized_tag_name ?? null,
+      collection: collectionTag?.localized_tag_name ?? null,
       rarity,
       rarityKey: rarityToKey(rarity),
       iconUrl: steamImageUrl(desc.icon_url),
@@ -143,7 +155,8 @@ async function fetchViaCommunity(steamId) {
       isSouvenir: desc.name.startsWith('Souvenir'),
       stickers: extractStickers(desc.descriptions ?? []),
       tradable: desc.tradable === 1,
-      float: null,
+      inspectLink,
+      float: null, // Nécessite un appel floatcheck séparé (inspectLink)
     });
   }
 
