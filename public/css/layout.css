@@ -197,14 +197,21 @@
 /* --- Grid générique d'items --- */
 .items-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
-@media (min-width: 640px)  { .items-grid { grid-template-columns: repeat(5, 1fr); } }
-@media (min-width: 768px)  { .items-grid { grid-template-columns: repeat(7, 1fr); } }
-@media (min-width: 1024px) { .items-grid { grid-template-columns: repeat(9, 1fr); } }
-@media (min-width: 1280px) { .items-grid { grid-template-columns: repeat(11, 1fr); } }
+@media (min-width: 480px)  { .items-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px)  { .items-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1024px) { .items-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1280px) { .items-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Dans le contexte trade (2 colonnes côte à côte), la grille reste 2 puis 3 cols */
+.trade-columns .items-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 640px)  { .trade-columns .items-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1280px) { .trade-columns .items-grid { grid-template-columns: repeat(4, 1fr); } }
 
 /* --- État vide / loading --- */
 .state-empty {

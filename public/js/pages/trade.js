@@ -32,7 +32,15 @@ async function loadMarket() {
   try {
     let listings;
     if (MOCK.enabled) {
-      listings = MOCK.marketListings;
+      listings = [...MOCK.marketListings];
+      if (search) {
+        const q = search.toLowerCase();
+        listings = listings.filter(l => l.item.name.toLowerCase().includes(q));
+      }
+      if (sort === 'price_asc')  listings.sort((a, b) => (a.item.prices?.[0]?.price ?? 0) - (b.item.prices?.[0]?.price ?? 0));
+      if (sort === 'price_desc') listings.sort((a, b) => (b.item.prices?.[0]?.price ?? 0) - (a.item.prices?.[0]?.price ?? 0));
+      if (sort === 'name_asc')   listings.sort((a, b) => a.item.name.localeCompare(b.item.name));
+      if (sort === 'float_asc')  listings.sort((a, b) => (a.item.float ?? 1) - (b.item.float ?? 1));
     } else {
       const data = await API.getItems({ q: search, sort, limit: 60 });
       listings = data.listings ?? [];

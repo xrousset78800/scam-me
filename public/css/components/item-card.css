@@ -4,20 +4,20 @@
 
 .item-card {
   position: relative;
-  aspect-ratio: 1;
   background-color: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.15s, transform 0.1s;
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
   display: flex;
   flex-direction: column;
 }
 
 .item-card:hover {
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .item-card.selected {
@@ -32,7 +32,8 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
+  z-index: 1;
 }
 
 .item-card[data-rarity="consumer"]   { --rarity-color: var(--rarity-consumer); }
@@ -47,76 +48,145 @@
   background-color: var(--rarity-color, var(--rarity-consumer));
 }
 
-/* Image */
+/* Zone image */
 .item-card__img-wrap {
-  flex: 1;
+  height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 12px 10px 6px;
+  background: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--rarity-color, var(--rarity-consumer)) 10%, transparent),
+    transparent 70%
+  );
 }
 
 .item-card__img {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-}
-
-/* Infos bas de carte */
-.item-card__footer {
-  padding: 4px 6px;
-  background-color: var(--surface-2);
-}
-
-.item-card__name {
-  font-size: 0.6rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.item-card__price {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--accent);
+  image-rendering: auto;
 }
 
 /* Badge StatTrak */
 .item-card__stattrak {
   position: absolute;
-  top: 6px;
+  top: 8px;
   left: 6px;
   font-size: 0.5rem;
   font-weight: 700;
-  background-color: rgba(207, 106, 50, 0.85);
+  background-color: rgba(207, 106, 50, 0.9);
   color: #fff;
   padding: 1px 4px;
   border-radius: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* Badge Souvenir */
+.item-card__souvenir {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  font-size: 0.5rem;
+  font-weight: 700;
+  background-color: rgba(228, 174, 57, 0.9);
+  color: #000;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* Pied de carte */
+.item-card__footer {
+  padding: 6px 8px 8px;
+  background-color: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.item-card__name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Ligne exterior + float value */
+.item-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.item-card__exterior {
+  font-size: 0.62rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.item-card__float-val {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Barre de float */
 .item-card__float-bar {
-  height: 2px;
+  height: 3px;
   background: linear-gradient(to right,
     #4caf50 0%,
-    #8bc34a 25%,
-    #ffeb3b 50%,
-    #ff9800 75%,
+    #8bc34a 22%,
+    #cddc39 38%,
+    #ffeb3b 45%,
+    #ff9800 70%,
     #f44336 100%
   );
   position: relative;
-  margin: 0 6px 4px;
+  border-radius: 2px;
+  overflow: visible;
 }
 
 .item-card__float-marker {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 4px;
-  height: 6px;
+  width: 5px;
+  height: 8px;
   background-color: #fff;
   border-radius: 1px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.6);
+}
+
+/* Ligne prix */
+.item-card__price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.item-card__price {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Cadenas si non-tradable */
+.item-card__lock {
+  font-size: 0.6rem;
+  color: var(--muted);
+  opacity: 0.7;
 }
