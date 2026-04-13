@@ -1,4 +1,5 @@
-// Charge .env.local en dev, ignoré si absent (prod : variables Render)
+// Charge les env vars : .env.secrets (secrets bot), .env.local (config dev), .env (fallback)
+require('dotenv').config({ path: '.env.secrets' });
 require('dotenv').config({ path: '.env.local' });
 require('dotenv').config({ path: '.env' });
 
@@ -120,6 +121,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`scam.me démarré sur http://localhost:${PORT}`);
+
+  // --- Cron jobs (refresh inventaires, sync prix, nettoyage) ---
+  const { initCron } = require('./cron');
+  initCron();
+
+  // --- Steam bots (si les env vars BOT_* sont présentes) ---
+  const { initBots } = require('./bot');
+  initBots().catch(err => console.error('[bot] Init failed:', err.message));
+
+  // --- Trade queue ---
+  const { initQueue } = require('./queue');
+  initQueue();
 });
