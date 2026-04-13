@@ -3,42 +3,75 @@ const axios = require('axios');
 let lastSteamCall = 0;
 const STEAM_RATE_LIMIT_MS = 300;
 
+// Référence vers le priceMap du cron syncPrices (chargé au démarrage)
+let _cronPriceMap = null;
+function _getPriceMap() {
+  if (!_cronPriceMap) {
+    try { _cronPriceMap = require('../cron/jobs/syncPrices').priceMap; } catch { _cronPriceMap = new Map(); }
+  }
+  return _cronPriceMap;
+}
+
 /**
- * Récupère les prix en batch depuis Pricempire, avec fallback Steam.
+ * Récupère les prix pour une liste de market_hash_names.
+ * Priorité : 1) dump cron (gratuit, 0 requête) → 2) Pricempire → 3) Steam Market
  * @param {string[]} marketHashNames
  * @returns {Promise<Record<string, number>>}
  */
 async function fetchPrices(marketHashNames) {
   if (!marketHashNames.length) return {};
 
+  const result = {};
+  const missing = [];
+
+  // 1. D'abord le dump en mémoire (gratuit, instantané)
+  const priceMap = _getPriceMap();
+  for (const name of marketHashNames) {
+    const cached = priceMap.get(name);
+    if (cached != null) {
+      result[name] = cached;
+    } else {
+      missing.push(name);
+    }
+  }
+
+  if (missing.length === 0) return result;
+
+  // 2. Fallback Pricempire pour les items manquants
   const apiKey = process.env.PRICEMPIRE_API_KEY;
-  if (apiKey) {
+  if (apiKey && missing.length > 0) {
     try {
       const params = new URLSearchParams({
         api_key: apiKey,
         source: 'buff163',
         currency: 'USD',
       });
-      marketHashNames.forEach(name => params.append('items[]', name));
+      missing.forEach(name => params.append('items[]', name));
 
       const { data } = await axios.get(
         `https://api.pricempire.com/v3/items/prices?${params.toString()}`,
         { timeout: 8_000 }
       );
 
-      const result = {};
+      const found = [];
       for (const [name, info] of Object.entries(data)) {
         if (info?.buff163?.price) {
           result[name] = info.buff163.price / 100;
+          priceMap.set(name, result[name]); // Alimente le cache pour les prochains
+          found.push(name);
         }
       }
-      if (Object.keys(result).length > 0) return result;
+      // Retire les items trouvés de la liste des manquants
+      const stillMissing = missing.filter(n => !found.includes(n));
+      if (stillMissing.length === 0) return result;
+      return { ...result, ...(await fetchSteamPrices(stillMissing.slice(0, 10))) };
     } catch (err) {
-      console.warn('[prices] Pricempire unavailable, falling back to Steam:', err.message);
+      console.warn('[prices] Pricempire unavailable:', err.message);
     }
   }
 
-  return fetchSteamPrices(marketHashNames.slice(0, 20));
+  // 3. Dernier recours : Steam Market (rate limited, max 10)
+  return { ...result, ...(await fetchSteamPrices(missing.slice(0, 10))) };
 }
 
 /**
